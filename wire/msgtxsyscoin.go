@@ -40,6 +40,7 @@ type NEVMAddressEntry struct {
 type NEVMAddressUpdateEntry struct {
 	OldAddress []byte
 	NewAddress []byte
+	CollateralHeight uint32
 }
 // NEVMRemoveEntry represents an entry with an address to be removed.
 type NEVMRemoveEntry struct {
@@ -102,6 +103,10 @@ func (a *NEVMAddressUpdateEntry) Deserialize(r io.Reader) error {
 	if err != nil {
 		return err
 	}
+	a.CollateralHeight, err = binarySerializer.Uint32(r, littleEndian)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -111,6 +116,10 @@ func (a *NEVMAddressUpdateEntry) Serialize(w io.Writer) error {
 		return err
 	}
 	err = WriteVarBytes(w, 0, a.NewAddress)
+	if err != nil {
+		return err
+	}
+	err = binarySerializer.PutUint32(w, littleEndian, a.CollateralHeight)
 	if err != nil {
 		return err
 	}
